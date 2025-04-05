@@ -1,18 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.svm import SVC
 import sklearn.datasets as d
 
-data = d.load_breast_cancer()
-print(data.values())
-X = data.data[:, :2]
-y = data.target
+
+
+X, y = d.make_blobs(n_samples=50, n_features=2, centers=2, cluster_std=1.05, random_state=40)
 y = np.where(y == 0, -1, 1)
 
 plt.scatter(X[:, 0], X[:, 1], c=y, cmap='bwr')
-plt.xlabel('Sepal Length')
-plt.ylabel('Sepal Width')
-plt.title('Iris Dataset (Setosa vs. Non-Setosa)')
 plt.show()
 
 
@@ -63,14 +58,3 @@ def plot_decision_boundary(X, y, model):
 
 plot_decision_boundary(X, y, svm)
 
-
-new_samples = np.array([[0, 0], [4, 4]])
-predictions = svm.predict(new_samples)
-print(predictions)
-
-
-
-clf = SVC(kernel='linear')
-clf.fit(X, y)
-
-print(clf.predict(new_samples))
