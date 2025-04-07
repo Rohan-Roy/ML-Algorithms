@@ -4,73 +4,72 @@ import matplotlib.pyplot as plt
 
 
 class LinearRegression:
-    def __init__(self , x:np.ndarray ,y:np.ndarray):
+    def __init__(self, x: np.ndarray, y: np.ndarray, learning_rate: float = 0.00001, iterations: int = 1000):
         self.x = x
-        self.m = len(x)
         self.y = y
+        self.m = len(x)
+        self.learning_rate = learning_rate
+        self.iterations = iterations
 
-    # Calculate y hat.
-    def predictions(self ,slope:int , y_intercept:int) -> np.ndarray: 
-        predictions = []
+    def predictions(self, slope: float, y_intercept: float) -> np.ndarray:
+        """
+        Calculate the predicted y values (y_hat) for given slope and y_intercept.
+        
+        Args:
+            slope (float): The slope of the regression line.
+            y_intercept (float): The y-intercept of the regression line.
+        
+        Returns:
+            np.ndarray: Predicted y values.
+        """
+        return slope * self.x + y_intercept
 
-        for x in self.x:
-            predictions.append(slope * x + y_intercept)
+    def calculate_error_cost(self, y_hat: np.ndarray) -> float:
+        """
+        Calculate the mean squared error cost.
+        
+        Args:
+            y_hat (np.ndarray): Predicted y values.
+        
+        Returns:
+            float: The mean squared error cost.
+        """
+        return (1 / (2 * self.m)) * np.sum((y_hat - self.y) ** 2)
 
-        return predictions
-
-    def calculate_error_cost(self , y_hat:np.ndarray) -> int:
-        error_values = []
-        for i in range(self.m):
-            error_values.append((y_hat[i] - self.y[i] )** 2)
-
-        error = (1/(2*self.m)) * sum(error_values)
-    
-        return error
-    
-    def gradient_descent(self):
+    def gradient_descent(self) -> tuple:
+        """
+        Perform gradient descent to learn the slope and y_intercept.
+        
+        Returns:
+            tuple: Final slope and y_intercept values.
+        """
         costs = []
-
-        # initialization values        
         temp_w = 0
         temp_b = 0
-        iteration = 0
-        
-        # Learning rate
-        a = 0.00001 
 
-        while iteration < 1000:
-            y_hat = self.predictions(slope=temp_w , y_intercept= temp_b)
-            
-            sum_w = 0
-            sum_b = 0
+        for iteration in range(self.iterations):
+            y_hat = self.predictions(slope=temp_w, y_intercept=temp_b)
+            sum_w = np.dot(y_hat - self.y, self.x)
+            sum_b = np.sum(y_hat - self.y)
 
-            for i in range(len(self.x)):
-                sum_w += (y_hat[i] - self.y[i] ) * self.x[i]
-                sum_b += (y_hat[i] - self.y[i] )
-
-            w = temp_w - a * ((1/self.m) *sum_w)
-            b = temp_b - a * ((1/self.m) *sum_b)
+            temp_w -= self.learning_rate * (1 / self.m) * sum_w
+            temp_b -= self.learning_rate * (1 / self.m) * sum_b
 
             costs.append(self.calculate_error_cost(y_hat))
 
-            try:
-                if costs[-1] > costs[-2]: # If global minimum reached
-                    print(costs)
-                    return [temp_w,temp_b]
-            except IndexError:
-                pass
+            if iteration > 0 and costs[-1] > costs[-2]:
+                print(costs)
+                return temp_w, temp_b
 
-            temp_w = w
-            temp_b = b
-            iteration += 1
             print(iteration)
 
-        return [temp_w,temp_b]
+        return temp_w, temp_b
 
+
+# Example usage
 p = pd.read_csv('data/archive/test.csv')
-
-x_data = p['x']
-y_data = p['y']
+x_data = p['x'].values
+y_data = p['y'].values
 lin_reg = LinearRegression(x_data, y_data)
 y_hat = lin_reg.predictions(*lin_reg.gradient_descent())
 
