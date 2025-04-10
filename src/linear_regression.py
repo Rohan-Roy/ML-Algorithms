@@ -67,9 +67,9 @@ class LinearRegression:
 
 
 # Example usage
-p = pd.read_csv('data/archive/test.csv')
-x_data = p['x'].values
-y_data = p['y'].values
+df = pd.read_csv('data/archive/test.csv')
+x_data = df['x'].values
+y_data = df['y'].values
 lin_reg = LinearRegression(x_data, y_data)
 y_hat = lin_reg.predictions(*lin_reg.gradient_descent())
 
